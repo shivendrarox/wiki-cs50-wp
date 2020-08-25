@@ -1,0 +1,104 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link href="{% static 'encyclopedia/styles.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="row">
+      <div class="sidebar col-lg-2 col-md-3">
+        <h2>Wiki</h2>
+        <form action="{% url 'show_entry' %}" method="get">
+          <input
+            class="search"
+            type="text"
+            name="q"
+            placeholder="Search Encyclopedia"
+          />
+        </form>
+        <div>
+          <a href="{% url 'index' %}">Home</a>
+        </div>
+        <div>
+          <a href="{% url 'add' %}">Create New Page </a>
+        </div>
+        <div>
+            <a href="{% url 'random' %}">
+                Random Page
+            </a>
+        </div>
+        {% if editable is True %}
+        <div>
+          <a href="/edit/{{ename}}">Edit This Page </a>
+        </div>
+        {% endif %} {% block nav %} {% endblock %}
+      </div>
+      <div class="main col-lg-10 col-md-9">
+        {% block body %} {{ entry|safe }} 
+        
+        {% if form is not None %}
+        <h1>Create A New Page</h1>
+        <form action="{% url 'add' %}" method="post">
+          {% csrf_token %} 
+
+          {{ form.non_field_errors }}
+          <p>
+          <div class="fieldWrapper">
+              {{ form.entry_title.errors }}
+              {{ form.entry_title.label_tag }}
+              {{ form.entry_title }}
+          </div>
+        </p>
+          <div class="fieldWrapper">
+              {{ form.entry_body.errors }}
+              <p>
+                {{ form.entry_body.label_tag }}
+              </p>
+              <p>
+                {{ form.entry_body }}
+              </p>
+          </div>
+            <input type="submit" />
+        </form>
+        {% endif %} 
+
+        {% if edit_form is not None %}
+        <h1>Edit {{ename|safe}} Page</h1>
+        <form action="{% url 'edit' ename %}" method="post">
+          {% csrf_token %}
+            <p>
+                <label for="id_title">Title:</label>
+                <input type="text" name="title" required id="id_title" value={{ename}} disabled />
+            </p>
+
+            <p>
+                <label for="id_body">Content:</label>
+            </p>
+            <p>
+                <textarea
+                  name="body"
+                  cols="40"
+                  rows="10"
+                  required
+                  id="id_body"
+                >
+                {{ebody}}
+              </textarea>
+            </p>
+            
+          <input type="submit" />
+        </form>
+        {% endif %} {% endblock %}
+      </div>
+    </div>
+  </body>
+</html>
